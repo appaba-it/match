@@ -13,7 +13,7 @@ const questions = [
       { src: "img/uva.jpg", correct: true }
     ]
   },
-  // ... (tutte le altre domande come prima)
+  // Aggiungi altre domande se vuoi
 ];
 
 let currentQuestion = 0;
@@ -21,10 +21,9 @@ let correctAnswers = 0;
 
 function loadQuestion() {
   const q = questions[currentQuestion];
-  const imageName = q.image.split('/').pop().split('.')[0]; // estrae il nome
+  const imageName = q.image.split('/').pop().split('.')[0]; // estrae "mela"
 
   document.getElementById("title").textContent = `${imageName.toUpperCase()}`;
-
   document.getElementById("question-image").src = q.image;
   document.getElementById("question-image").style.display = "block";
 
@@ -39,28 +38,57 @@ function loadQuestion() {
     img.className = "option-img";
     img.setAttribute("draggable", "true");
     img.setAttribute("id", option.src.split('/').pop().split('.')[0]); // es. banana
-    img.onclick = () => handleAnswer(option.correct);
     img.ondragstart = drag;
+
+    // Al passaggio del mouse
+    img.addEventListener("mouseenter", () => {
+      autoDrop(img);
+    });
+
+    // Al tocco su mobile
+    img.addEventListener("touchstart", () => {
+      autoDrop(img);
+    });
+
     optionsContainer.appendChild(img);
   });
 
   document.getElementById("feedback").textContent = "";
 }
 
-function handleAnswer(isCorrect) {
-  const feedback = document.getElementById("feedback");
-  feedback.textContent = isCorrect ? "Brava! 👏" : "Ops! ❌";
+function autoDrop(imgElement) {
+  const dropZone = document.getElementById("drop-zone");
 
-  if (isCorrect) {
+  // Evita più selezioni
+  if (dropZone.querySelector("img")) return;
+
+  const draggedId = imgElement.id;
+  const q = questions[currentQuestion];
+  const draggedImg = q.options.find(opt => opt.src.includes(draggedId));
+
+  dropZone.innerHTML = "";
+
+  const img = document.createElement("img");
+  img.src = draggedImg.src;
+  img.className = "correct-answer";
+  dropZone.appendChild(img);
+
+  if (draggedImg && draggedImg.correct) {
+    dropZone.classList.add("correct-drop");
+    document.getElementById("feedback").innerText = "Bravo! Hai scelto l'immagine corretta.";
     correctAnswers++;
-    const correctSound = new Audio("correct.mp3");
-    correctSound.play();
+    new Audio("correct.mp3").play();
   } else {
-    const wrongSound = new Audio("wrong.mp3");
-    wrongSound.play();
+    document.getElementById("feedback").innerText = "Ops! Riprova.";
+    new Audio("wrong.mp3").play();
   }
 
+  const optionImgs = document.querySelectorAll(".option-img");
+  optionImgs.forEach(img => img.setAttribute("draggable", "false"));
+
   setTimeout(() => {
+    dropZone.classList.remove("correct-drop");
+    dropZone.innerHTML = "Trascina qui la risposta";
     currentQuestion++;
     if (currentQuestion < questions.length) {
       loadQuestion();
@@ -89,7 +117,7 @@ function restartQuiz() {
   loadQuestion();
 }
 
-// Funzioni drag & drop
+// Funzioni drag & drop standard (se vuoi ancora supportare anche trascinamento classico)
 
 function allowDrop(ev) {
   ev.preventDefault();
@@ -101,13 +129,13 @@ function drag(ev) {
 
 function drop(ev) {
   ev.preventDefault();
-  const draggedId = ev.dataTransfer.getData("text"); // es. "banana"
+  const draggedId = ev.dataTransfer.getData("text");
   const dropZone = document.getElementById("drop-zone");
 
   const q = questions[currentQuestion];
   const draggedImg = q.options.find(opt => opt.src.includes(draggedId));
 
-  dropZone.innerHTML = ""; // Pulisce la drop-zone
+  dropZone.innerHTML = "";
 
   const img = document.createElement("img");
   img.src = draggedImg.src;
@@ -124,7 +152,6 @@ function drop(ev) {
     new Audio("wrong.mp3").play();
   }
 
-  // Blocca ulteriori azioni fino alla prossima domanda
   const optionImgs = document.querySelectorAll(".option-img");
   optionImgs.forEach(img => img.setAttribute("draggable", "false"));
 
@@ -140,5 +167,5 @@ function drop(ev) {
   }, 1500);
 }
 
-// Avvio quiz
+// Avvio iniziale
 loadQuestion();
