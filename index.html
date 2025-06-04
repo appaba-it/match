@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Player + Quiz</title>
+    <!-- Colleghiamo lo stile esterno -->
+    <link rel="stylesheet" href="style.css">
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#007BFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+</head>
+<body>
+    <!-- 🧩 SEZIONE QUIZ -->
+    <h1 class="section-title" id="title">Quiz Drag & Drop</h1>
+
+    <div class="container">
+        <div class="top-row">
+            <img id="question-image" src="" alt="Domanda">
+            <div id="drop-zone" class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)">
+                Trascina qui la risposta
+            </div>
+        </div>
+
+        <div class="options-row" id="options">
+            <!-- le opzioni vengono inserite qui tramite JavaScript -->
+        </div>
+
+        <div id="feedback"></div>
+    </div>
+
+    <!-- Script JS -->
+    <script src="script.js"></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log("SW registrato!"))
+      .catch(err => console.log("SW errore:", err));
+  }
+</script>
+
+</body>
+</html>
